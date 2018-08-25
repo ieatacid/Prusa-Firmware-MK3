@@ -12,3 +12,12 @@ Firmware/Doc
 /Firmware/Firmware - Shortcut.lnk
 /Firmware/variants/1_75mm_MK3-MMU-EINSy10a-E3Dv6full.h.bak
 /Firmware/Marlin_main.cpp~RF12cfae7.TMP
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+.out
+.travis.yml
+platformio.ini
+lib/
+Firmware/Firmware.ino.rambo.hex
