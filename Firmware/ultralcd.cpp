@@ -7276,7 +7276,7 @@ void setLiveZ(float z_change, bool absolute)
     if ((current_z < Z_BABYSTEP_MIN) || (current_z > Z_BABYSTEP_MAX))
     {
         SERIAL_ECHO("Z live adjust aborted (out of range): ");
-		SERIAL_ECHOLN(float(current_z / axis_steps_per_unit[Z_AXIS]));
+        SERIAL_ECHOLN(float(current_z / axis_steps_per_unit[Z_AXIS]));
         return;
     }
 
