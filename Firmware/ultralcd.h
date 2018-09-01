@@ -45,6 +45,7 @@ void lcd_menu_statistics();
 extern const char* lcd_display_message_fullscreen_P(const char *msg, uint8_t &nlines);
 extern const char* lcd_display_message_fullscreen_P(const char *msg);
 
+extern void lcd_return_to_status();
 extern void lcd_wait_for_click();
 extern void lcd_show_fullscreen_message_and_wait_P(const char *msg);
 // 0: no, 1: yes, -1: timeouted
@@ -111,6 +112,7 @@ extern int8_t SilentModeMenu;
 
 extern bool cancel_heatup;
 extern bool isPrintPaused;
+extern bool lcd_autoDeplete;
 
 
 void lcd_ignore_click(bool b=true);
@@ -166,6 +168,6 @@ void lcd_language();
 void lcd_wizard();
 void lcd_wizard(int state);
 
-void setLiveZ(float z_change, bool absolute);
+void setLiveZ(float z_change, bool relative);
 
 #endif //ULTRALCD_H
