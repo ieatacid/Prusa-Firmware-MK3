@@ -168,6 +168,6 @@ void lcd_language();
 void lcd_wizard();
 void lcd_wizard(int state);
 
-void setLiveZ(float z_change, bool relative);
+void setLiveZ(float z_change, int mode);
 
 #endif //ULTRALCD_H

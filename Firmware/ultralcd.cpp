@@ -7362,42 +7362,71 @@ void menu_lcd_lcdupdate_func(void)
 	if (lcd_commands_type == LCD_COMMAND_V2_CAL) lcd_commands();
 }
 
-void setLiveZ(float z_change, bool relative)
+void setLiveZ(float z_change, int mode)
 {
+#define STEPS_TO_FLOAT(steps) (steps / axis_steps_per_unit[Z_AXIS])
+#define FLOAT_TO_STEPS(z) (int(z * axis_steps_per_unit[Z_AXIS]))
     /*
-    Z baby step: -280
+    Z baby step: -296 (-0.740)  -300 (-0.750)
     Z axis_steps_per_unit: 400.00
     */
     int axis = 2; // Z_AXIS
     int current_z = 0;
+    char msg[7];
 
     EEPROM_read_B(EEPROM_BABYSTEP_Z, &current_z);
 
-    if(relative)
+    if(mode == 2)
     {
-        float new_z = (float)current_z / axis_steps_per_unit[Z_AXIS];
+        sprintf(msg, "%.3f", STEPS_TO_FLOAT(current_z));
+        SERIAL_ECHO("Current Live Z offset: ");
+        SERIAL_ECHO(msg);
+        SERIAL_PROTOCOLLN("");
+        return;
+    }
+
+    if(mode == 1)
+    {
+        float new_z = STEPS_TO_FLOAT(current_z);
         new_z += z_change;
-        current_z = new_z * axis_steps_per_unit[Z_AXIS];
+        current_z = FLOAT_TO_STEPS(new_z);
     }
     else // absolute
     {
-        current_z = z_change * axis_steps_per_unit[Z_AXIS];
+        SERIAL_ECHO("current_z (int): ");
+        SERIAL_ECHO(current_z);
+        SERIAL_PROTOCOLLN("");
+        SERIAL_ECHO("current_z (float): ");
+        SERIAL_ECHO(STEPS_TO_FLOAT(current_z));
+        SERIAL_PROTOCOLLN("");
+        SERIAL_ECHO("z_change (int): ");
+        SERIAL_ECHO(FLOAT_TO_STEPS(z_change));
+        SERIAL_PROTOCOLLN("");
+        SERIAL_ECHO("z_change (float): ");
+        SERIAL_ECHO(z_change);
+        SERIAL_PROTOCOLLN("");
+        current_z = FLOAT_TO_STEPS(z_change);
     }
     
     if((current_z < Z_BABYSTEP_MIN) || (current_z > Z_BABYSTEP_MAX))
     {
-        // SERIAL_ECHO("Set Live Z aborted (out of range): ");
-        // SERIAL_ECHOLN(float(current_z / axis_steps_per_unit[Z_AXIS]));
-        printf_P("Set Live Z aborted (out of range): %.2f\n", (float)current_z / axis_steps_per_unit[Z_AXIS]);
+        sprintf(msg, "%.3f", STEPS_TO_FLOAT(current_z));
+        SERIAL_ECHO("Set Live Z aborted (out of range): ");
+        SERIAL_ECHO(msg);
+        SERIAL_PROTOCOLLN("");
         return;
     }
     else
     {
-        // SERIAL_ECHO("Set Live Z success!: ");
-        // SERIAL_ECHOLN(float(current_z / axis_steps_per_unit[Z_AXIS]));
-        printf_P("Live Z offset changed to: %.2f\n", (float)current_z / axis_steps_per_unit[Z_AXIS]);
+        sprintf(msg, "%.3f", STEPS_TO_FLOAT(current_z));
+        SERIAL_ECHO("Live Z offset changed to: ");
+        SERIAL_ECHO(msg);
+        SERIAL_PROTOCOLLN("");
     }
 
     EEPROM_save_B(EEPROM_BABYSTEP_Z, &current_z);
+
+#undef STEPS_TO_FLOAT
+#undef FLOAT_TO_STEPS
 }
 

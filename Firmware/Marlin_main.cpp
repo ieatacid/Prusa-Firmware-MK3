@@ -6801,7 +6801,7 @@ if((eSoundMode==e_SOUND_MODE_LOUD)||(eSoundMode==e_SOUND_MODE_ONCE))
 	break;
     case 951: // M951: Set live Z
     {
-        bool relative = false;
+        int relative = 0;
         float new_z = 0.0f;
 
         if(code_seen('Z'))
@@ -6809,9 +6809,13 @@ if((eSoundMode==e_SOUND_MODE_LOUD)||(eSoundMode==e_SOUND_MODE_ONCE))
             new_z = code_value();
 
             if(code_seen('R'))
-                relative = true;
+                relative = 1;
 
             setLiveZ(new_z, relative);
+        }
+        else
+        {
+            setLiveZ(0, 2);
         }
     }
     break;
