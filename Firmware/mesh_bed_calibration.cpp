@@ -2993,15 +2993,6 @@ void babystep_load()
         // End of G80: Apply the baby stepping value.
         EEPROM_read_B(EEPROM_BABYSTEP_Z, &babystepLoadZ);
                             
-    #if 0
-        SERIAL_ECHO("Z baby step: ");
-        SERIAL_ECHO(babystepLoadZ);
-        SERIAL_ECHO(", current Z: ");
-        SERIAL_ECHO(current_position[Z_AXIS]);
-        SERIAL_ECHO("correction: ");
-        SERIAL_ECHO(float(babystepLoadZ) / float(axis_steps_per_unit[Z_AXIS]));
-        SERIAL_ECHOLN("");
-    #endif
     }
 }
 
