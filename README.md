@@ -1,3 +1,7 @@
+# Differences from default Prusa MK3 firmware
+   1. Adds `M952` m code which lets one set the machine Live Z via serial terminal or slicer gcode. `M952` with no parameters will display the current Live Z offset in the serial terminal. To change Live Z simply add Z followed by the new offset, example:  `M952 Z-0.550` will change your Live Z to -0.550.
+
+
 # 1. Development environment preparation
 
    1. install `"Arduino Software IDE"` for your preferred operating system  
