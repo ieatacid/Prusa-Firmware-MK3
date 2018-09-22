@@ -2801,7 +2801,17 @@ static void _lcd_babystep(int axis, const char *msg)
 	}
 	if (LCD_CLICKED || menu_leaving)
 	{
-		// Only update the EEPROM when leaving the menu.
+#ifdef DEBUG_BABYSTEP
+        char msg[7];
+        sprintf(msg, "%.3f", STEPS_TO_MM(_md->babystepMem[axis]));
+        SERIAL_ECHO("Saving Z: ");
+        SERIAL_ECHO(msg);
+        SERIAL_ECHO(", ");
+        sprintf(msg, "%i", _md->babystepMem[axis]);
+        SERIAL_ECHO(msg);
+        SERIAL_PROTOCOLLN("");
+#endif
+        // Only update the EEPROM when leaving the menu.
 		EEPROM_save_B(
 		(axis == X_AXIS) ? EEPROM_BABYSTEP_X : ((axis == Y_AXIS) ? EEPROM_BABYSTEP_Y : EEPROM_BABYSTEP_Z),
 		&_md->babystepMem[axis]);
@@ -7373,6 +7383,7 @@ void menu_lcd_lcdupdate_func(void)
 	if (lcd_commands_type == LCD_COMMAND_V2_CAL) lcd_commands();
 }
 
+#ifdef M951
 void setLiveZ(float new_z, int mode)
 {
     int z_steps = 0;
@@ -7388,38 +7399,70 @@ void setLiveZ(float new_z, int mode)
         return;
     }
 
-    if(mode == 1) // relative - UNTESTED
-    {
-        // EEPROM_read_B(EEPROM_BABYSTEP_Z, &current_z);
-        // current_z += z_steps;
-    }
-    else // absolute
+    if(mode == 1) // relative
     {
         EEPROM_read_B(EEPROM_BABYSTEP_Z, &z_steps);
 
-        #if DEBUG_SetLiveZ
+#ifdef DEBUG_SetLiveZ
         SERIAL_ECHO("current z (int):   ");
-        sprintf(msg, "%.3f", z_steps);
-        SERIAL_ECHO(z_steps);
+        sprintf(msg, "%i", z_steps);
+        SERIAL_ECHO(msg);
         SERIAL_PROTOCOLLN("");
         SERIAL_ECHO("current z (float): ");
         sprintf(msg, "%.3f", STEPS_TO_MM(z_steps));
         SERIAL_ECHO(msg);
         SERIAL_PROTOCOLLN("");
-        #endif
+        SERIAL_ECHO("z change (int):    ");
+        sprintf(msg, "%i", MM_TO_STEPS(new_z));
+        SERIAL_ECHO(msg);
+        SERIAL_PROTOCOLLN("");
+        SERIAL_ECHO("z change (float):  ");
+        sprintf(msg, "%.3f", new_z);
+        SERIAL_ECHO(msg);
+        SERIAL_PROTOCOLLN("");
+#endif
+
+        float f = STEPS_TO_MM(z_steps) + new_z;
+        z_steps = MM_TO_STEPS(f);
+
+#ifdef DEBUG_SetLiveZ
+        SERIAL_ECHO("new z (int):       ");
+        sprintf(msg, "%i", z_steps);
+        SERIAL_ECHO(msg);
+        SERIAL_PROTOCOLLN("");
+        SERIAL_ECHO("new z (float):     ");
+        sprintf(msg, "%.3f", STEPS_TO_MM(z_steps));
+        SERIAL_ECHO(msg);
+        SERIAL_PROTOCOLLN("");
+#endif
+    }
+    else // absolute
+    {
+        EEPROM_read_B(EEPROM_BABYSTEP_Z, &z_steps);
+
+#ifdef DEBUG_SetLiveZ
+        SERIAL_ECHO("current z (int):   ");
+        sprintf(msg, "%i", z_steps);
+        SERIAL_ECHO(msg);
+        SERIAL_PROTOCOLLN("");
+        SERIAL_ECHO("current z (float): ");
+        sprintf(msg, "%.3f", STEPS_TO_MM(z_steps));
+        SERIAL_ECHO(msg);
+        SERIAL_PROTOCOLLN("");
+#endif
 
         z_steps = MM_TO_STEPS(new_z);
     
-        #if DEBUG_SetLiveZ
+#ifdef DEBUG_SetLiveZ
         SERIAL_ECHO("new z (int):       ");
-        sprintf(msg, "%.3f", z_steps);
+        sprintf(msg, "%i", z_steps);
         SERIAL_ECHO(z_steps);
         SERIAL_PROTOCOLLN("");
         SERIAL_ECHO("new z (float):     ");
         sprintf(msg, "%.3f", STEPS_TO_MM(z_steps));
         SERIAL_ECHO(msg);
         SERIAL_PROTOCOLLN("");
-        #endif
+#endif
     }
     
     if((z_steps < Z_BABYSTEP_MIN) || (z_steps > Z_BABYSTEP_MAX))
@@ -7428,7 +7471,6 @@ void setLiveZ(float new_z, int mode)
         SERIAL_ECHO("Set Live Z aborted (out of range): ");
         SERIAL_ECHO(msg);
         SERIAL_PROTOCOLLN("");
-        return;
     }
     else
     {
@@ -7436,8 +7478,7 @@ void setLiveZ(float new_z, int mode)
         SERIAL_ECHO("Live Z offset changed to: ");
         SERIAL_ECHO(msg);
         SERIAL_PROTOCOLLN("");
+        EEPROM_save_B(EEPROM_BABYSTEP_Z, &z_steps);
     }
-
-    EEPROM_save_B(EEPROM_BABYSTEP_Z, &z_steps);
 }
-
+#endif

@@ -4414,8 +4414,12 @@ if((eSoundMode==e_SOUND_MODE_LOUD)||(eSoundMode==e_SOUND_MODE_ONCE))
 		int ix = 0;
 		int iy = 0;
 
-		int XY_AXIS_FEEDRATE = homing_feedrate[X_AXIS] / 20;
-		int Z_LIFT_FEEDRATE = homing_feedrate[Z_AXIS] / 40;
+#ifdef FW_MK25_13A
+        int XY_AXIS_FEEDRATE = homing_feedrate[X_AXIS] / 30;
+#else
+        int XY_AXIS_FEEDRATE = homing_feedrate[X_AXIS] / 20;
+#endif
+        int Z_LIFT_FEEDRATE = homing_feedrate[Z_AXIS] / 40;
 		bool has_z = is_bed_z_jitter_data_valid(); //checks if we have data from Z calibration (offsets of the Z heiths of the 8 calibration points from the first point)
 		#ifdef SUPPORT_VERBOSITY
 		if (verbosity_level >= 1) {
@@ -6801,6 +6805,7 @@ if((eSoundMode==e_SOUND_MODE_LOUD)||(eSoundMode==e_SOUND_MODE_ONCE))
 			unload_filament();
 	}
 	break;
+#ifdef M951
     case 951: // M951: Set live Z
     {
         int relative = 0;
@@ -6821,6 +6826,7 @@ if((eSoundMode==e_SOUND_MODE_LOUD)||(eSoundMode==e_SOUND_MODE_ONCE))
         }
     }
     break;
+#endif
     case 999: // M999: Restart after being stopped
       Stopped = false;
       lcd_reset_alert_level();
@@ -7777,6 +7783,18 @@ void check_babystep()
 		lcd_show_fullscreen_message_and_wait_P(PSTR("Z live adjust out of range. Setting to 0. Click to continue."));
 		lcd_update_enable(true);		
 	}	
+#ifdef DEBUG_BABYSTEP
+    SERIAL_ECHOLN("Marlin_main.cpp::setup()::check_babystep()");
+    SERIAL_ECHO("Z baby step: ");
+    SERIAL_ECHO(babystep_z);
+    SERIAL_ECHO(", current Z: ");
+    SERIAL_ECHO(current_position[Z_AXIS]);
+    SERIAL_ECHO(", correction: ");
+    SERIAL_ECHO(float(babystep_z) / float(axis_steps_per_unit[Z_AXIS]));
+    SERIAL_ECHO(", z_steps_per_unit: ");
+    SERIAL_ECHO(axis_steps_per_unit[Z_AXIS]);
+    SERIAL_ECHOLN("");
+#endif
 }
 #ifdef DIS
 void d_setup()
@@ -7877,10 +7895,14 @@ void bed_analysis(float x_dimension, float y_dimension, int x_points_num, int y_
 	current_position[Z_AXIS] = mesh_home_z_search;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS] / 60, active_extruder);
 
-	int XY_AXIS_FEEDRATE = homing_feedrate[X_AXIS] / 20;
-	int Z_LIFT_FEEDRATE = homing_feedrate[Z_AXIS] / 40;
+#ifdef FW_MK25_13A
+    int XY_AXIS_FEEDRATE = homing_feedrate[X_AXIS] / 30;
+#else
+    int XY_AXIS_FEEDRATE = homing_feedrate[X_AXIS] / 20;
+#endif
+    int Z_LIFT_FEEDRATE = homing_feedrate[Z_AXIS] / 40;
 
-	setup_for_endstop_move(false);
+    setup_for_endstop_move(false);
 
 	SERIAL_PROTOCOLPGM("Num X,Y: ");
 	SERIAL_PROTOCOL(x_points_num);
