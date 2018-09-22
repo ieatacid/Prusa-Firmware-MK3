@@ -3,6 +3,27 @@
       * `M951` with no parameters will display the current Live Z offset in the serial terminal
       * `M951 Z-0.550` will change your Live Z to -0.550
       * `M951 Z-0.05 R` will move your Live Z -0.05mm *relative* to your current Live Z (Z-0.550 will become Z-0.600). `M951 Z0.05 R` will *add* 0.05mm to your Live Z (Z-0.550 will become Z-0.500)
+      
+      With Slic3rPE you can do something like this to have different Live Z values for different filament types:
+      
+          {if filament_notes[0] =~ /.*PETG.*/}
+          M951 Z-0.690 ; Z offset for PETG
+          {elsif filament_notes[0] =~ /.*PLA.*/}
+          M951 Z-0.740 ; Z offset for PLA
+          {endif}
+          
+      Will Pargeter on Facebook had a good idea for using relative mode:  Set your Live Z in start gcode then revert in the end gcode, like this:
+      
+          /* Start gcode */
+          {if filament_notes[0] =~ /.*PETG.*/}
+          M951 Z-0.050 R ; Z offset for PETG
+          {endif}
+          
+          /* End gcode */
+          {if filament_notes[0] =~ /.*PETG.*/}
+          M951 Z0.050 R ; Z offset for PETG
+          {endif}
+
 
 
 # 1. Development environment preparation
